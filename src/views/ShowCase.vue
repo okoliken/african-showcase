@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { refDebounced, watchDebounced } from '@vueuse/core'
 import { BaseInput, Image, SkeletonShimmer, Modal } from '@/components/ui'
 import { useDataStore } from '../stores/data'
 import { storeToRefs } from 'pinia'
 
-const { isFetching, isError, data, error, isLoading, selectedPhoto } = storeToRefs(useDataStore())
+const { isFetching, data, isLoading, selectedPhoto } = storeToRefs(useDataStore())
 const { setQueryKey } = useDataStore()
 
 const isModalOpen = ref(false)
