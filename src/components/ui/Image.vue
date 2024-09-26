@@ -8,6 +8,7 @@
         class="photo-image"
         loading="lazy"
       />
+      <!-- Use skeleton when loading -->
       <div v-else class="photo-placeholder">
         <div class="skeleton"></div>
       </div>
@@ -30,6 +31,7 @@ const props = defineProps({
   }
 })
 
+// Ensure that the image loading state is handled correctly
 const { isLoading } = useImage({ src: props.photo?.urls?.regular })
 </script>
 
@@ -47,6 +49,7 @@ const { isLoading } = useImage({ src: props.photo?.urls?.regular })
     width: 100%;
     overflow: hidden;
     border-radius: 10px;
+    cursor: pointer;
 
     .photo-image {
       width: 100%;
@@ -58,11 +61,10 @@ const { isLoading } = useImage({ src: props.photo?.urls?.regular })
     .photo-placeholder {
       width: 100%;
       height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       background-color: #f3f3f3;
       border-radius: 10px;
+      position: relative;
+      overflow: hidden;
       z-index: 2;
 
       .skeleton {
