@@ -41,7 +41,7 @@ watchDebounced(
         <h1 v-if="isFetching && debouncedQuery !== ''">
           Searching for <span>"{{ debouncedQuery }}"</span>
         </h1>
-        <h1 v-else-if="!isFetching && debouncedQuery !== '' && data.length > 0">
+        <h1 v-else-if="!isFetching && debouncedQuery !== '' && (!data || data.length > 0)">
           Search Results for <span>"{{ debouncedQuery }}"</span>
         </h1>
         <BaseInput v-else-if="!isFetching && debouncedQuery === ''" v-model="query" />
