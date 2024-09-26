@@ -1,31 +1,68 @@
 <script setup lang="ts">
-import { onMounted, nextTick } from 'vue'
-import { gsap } from 'gsap'
-import { BaseInput, Image, SkeletonShimmer } from '@/components/ui'
+import { onMounted, ref } from 'vue'
+import { refDebounced, watchDebounced } from '@vueuse/core'
+// import { gsap } from 'gsap'
+import { BaseInput, Image, SkeletonShimmer, Modal } from '@/components/ui'
 import { useDataStore } from '../stores/data'
 import { storeToRefs } from 'pinia'
 
-const { isFetching, isError, data, error } = storeToRefs(useDataStore())
+const { isFetching, isError, data, error, isLoading, selectedPhoto } = storeToRefs(useDataStore())
+const { setQueryKey } = useDataStore()
 
-onMounted(async () => {
-  await nextTick()
-  if (!isFetching.value && data.value.length > 0) {
-    gsap.from('.photo-item', {
-      opacity: 0,
-      y: 50,
-      stagger: 0.2,
-      duration: 0.8,
-      ease: 'power3.out'
-    })
-  }
-})
+const isModalOpen = ref(false)
+
+const openModal = () => {
+  isModalOpen.value = true
+}
+
+const closeModal = () => {
+  isModalOpen.value = false
+}
+
+const query = ref('')
+const debouncedQuery = refDebounced(query, 500)
+
+watchDebounced(
+  debouncedQuery,
+  (newQuery) => {
+    if (newQuery) {
+      setQueryKey(newQuery)
+    } else {
+      setQueryKey('african')
+    }
+  },
+  { debounce: 800, maxWait: 1000 }
+)
+
+// onMounted(async () => {
+//   await nextTick()
+//   if (!isFetching.value && data.value.length > 0) {
+//     gsap.from('.photo-item', {
+//       opacity: 0,
+//       y: 50,
+//       stagger: 0.2,
+//       duration: 0.8,
+//       ease: 'power3.out'
+//     })
+//   }
+// })
 </script>
 
 <template>
   <main>
     <div class="hero-banner">
       <div class="search-container">
-        <BaseInput />
+        <h1 v-if="isFetching && debouncedQuery !== ''">
+          Searching for <span>"{{ debouncedQuery }}"</span>
+        </h1>
+        <h1 v-if="!isFetching && debouncedQuery !== ''">
+          Search Results for <span>"{{ debouncedQuery }}"</span>
+        </h1>
+        <BaseInput v-else v-model="query" />
+
+        <p v-if="!isFetching && debouncedQuery !== ''" 3 @click="query = ''" class="clear">
+          clear search
+        </p>
       </div>
     </div>
     <div class="centered-container">
@@ -35,7 +72,13 @@ onMounted(async () => {
             <SkeletonShimmer />
           </div>
         </template>
-        <div v-else v-for="(photo, index) in data" :key="index" class="photo-item">
+        <div
+          v-else
+          v-for="(photo, index) in data"
+          @click="openModal(), (selectedPhoto = photo)"
+          :key="index"
+          class="photo-item"
+        >
           <Image :photo="photo" />
           <div class="image-info">
             <p>{{ photo?.user?.first_name }}</p>
@@ -45,6 +88,16 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+
+    <Modal :isOpen="isModalOpen" @close="closeModal">
+      <div class="modal-content">
+        <img :src="selectedPhoto?.urls?.regular" alt="Selected Photo" />
+        <div class="modal-image-info">
+          <p>{{ selectedPhoto?.user?.first_name }}</p>
+          <span>{{ selectedPhoto?.user?.location }}</span>
+        </div>
+      </div>
+    </Modal>
   </main>
 </template>
 
@@ -57,7 +110,28 @@ onMounted(async () => {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
     height: 100%;
+
+    h1 {
+      color: #2d374e;
+      font-size: 42px;
+      font-weight: 500;
+    }
+
+    span {
+      color: #727a8a;
+      text-transform: capitalize;
+    }
+
+    .clear {
+      font-size: 12px;
+      text-transform: capitalize;
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 }
 
@@ -131,5 +205,21 @@ onMounted(async () => {
     background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
     border-radius: 0 0 0.5rem 0.5rem;
   }
+}
+
+.modal-content img {
+  max-width: 100%;
+  height: 400px;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 8px 8px 0px 0px;
+  margin-bottom: 15px;
+}
+
+.modal-image-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
 }
 </style>

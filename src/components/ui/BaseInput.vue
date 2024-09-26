@@ -16,11 +16,13 @@
         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
       </svg>
     </div>
-    <input type="text" class="search-input" placeholder="Search for photo" />
+    <input v-model="model" type="text" class="search-input" placeholder="Search for photo" />
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const model = defineModel({ default: '' })
+</script>
 
 <style lang="scss">
 .search-container {
@@ -39,6 +41,7 @@
     color: #333;
     transition: box-shadow 0.3s ease;
     outline: none;
+    font-family: 'Poppins', sans-serif;
     appearance: none;
     -webkit-box-shadow: 10px 86px 115px 46px rgba(211, 211, 211, 0.91);
     -moz-box-shadow: 10px 86px 115px 46px rgba(211, 211, 211, 0.91);
