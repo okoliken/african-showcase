@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { refDebounced, watchDebounced } from '@vueuse/core'
-// import { gsap } from 'gsap'
 import { BaseInput, Image, SkeletonShimmer, Modal } from '@/components/ui'
 import { useDataStore } from '../stores/data'
 import { storeToRefs } from 'pinia'
@@ -33,19 +32,6 @@ watchDebounced(
   },
   { debounce: 800, maxWait: 1000 }
 )
-
-// onMounted(async () => {
-//   await nextTick()
-//   if (!isFetching.value && data.value.length > 0) {
-//     gsap.from('.photo-item', {
-//       opacity: 0,
-//       y: 50,
-//       stagger: 0.2,
-//       duration: 0.8,
-//       ease: 'power3.out'
-//     })
-//   }
-// })
 </script>
 
 <template>
@@ -55,50 +41,61 @@ watchDebounced(
         <h1 v-if="isFetching && debouncedQuery !== ''">
           Searching for <span>"{{ debouncedQuery }}"</span>
         </h1>
-        <h1 v-if="!isFetching && debouncedQuery !== ''">
+        <h1 v-else-if="!isFetching && debouncedQuery !== '' && data.length > 0">
           Search Results for <span>"{{ debouncedQuery }}"</span>
         </h1>
-        <BaseInput v-else v-model="query" />
+        <BaseInput v-else-if="!isFetching && debouncedQuery === ''" v-model="query" />
 
-        <p v-if="!isFetching && debouncedQuery !== ''" 3 @click="query = ''" class="clear">
+        <p
+          v-if="!isFetching && debouncedQuery !== '' && (!data || data.length > 0)"
+          @click="query = ''"
+          class="clear"
+        >
           clear search
         </p>
+
+        <div class="center-items" v-if="!isFetching && (!data || data.length === 0)">
+          <h1>
+            No results found for <span>"{{ debouncedQuery }}"</span>
+          </h1>
+          <p class="clear" @click="setQueryKey('african'), (query = '')">clear search</p>
+        </div>
       </div>
     </div>
     <div class="centered-container">
-      <div :style="[isFetching && 'width: 100%']" class="photo-grid">
-        <template v-if="isFetching">
-          <div v-for="(i, index) in 8" :key="index" class="photo-item">
+      <div :style="{ width: isLoading ? '100%' : 'auto' }" class="photo-grid">
+        <template v-if="isLoading">
+          <div v-for="i in 8" :key="i" class="photo-item">
             <SkeletonShimmer />
           </div>
         </template>
-        <div
-          v-else
-          v-for="(photo, index) in data"
-          @click="openModal(), (selectedPhoto = photo)"
-          :key="index"
-          class="photo-item"
-        >
-          <Image :photo="photo" />
-          <div class="image-info">
-            <p>{{ photo?.user?.first_name }}</p>
-            <span>{{ photo?.user?.location }}</span>
+        <template v-else-if="data && data.length > 0">
+          <div
+            v-for="(photo, index) in data"
+            @click="openModal(), (selectedPhoto = photo)"
+            :key="index"
+            class="photo-item"
+          >
+            <Image :photo="photo" />
+            <div class="image-info">
+              <p>{{ photo?.user?.first_name }}</p>
+              <span>{{ photo?.user?.location }}</span>
+            </div>
+            <div class="overlay"></div>
           </div>
-          <div class="overlay"></div>
-        </div>
+        </template>
       </div>
     </div>
-
-    <Modal :isOpen="isModalOpen" @close="closeModal">
-      <div class="modal-content">
-        <img :src="selectedPhoto?.urls?.regular" alt="Selected Photo" />
-        <div class="modal-image-info">
-          <p>{{ selectedPhoto?.user?.first_name }}</p>
-          <span>{{ selectedPhoto?.user?.location }}</span>
-        </div>
-      </div>
-    </Modal>
   </main>
+  <Modal :isOpen="isModalOpen" @close="closeModal">
+    <div class="modal-content">
+      <img :src="selectedPhoto?.urls?.regular" alt="Selected Photo" />
+      <div class="modal-image-info">
+        <p>{{ selectedPhoto?.user?.first_name }}</p>
+        <span>{{ selectedPhoto?.user?.location }}</span>
+      </div>
+    </div>
+  </Modal>
 </template>
 
 <style lang="scss">
@@ -221,5 +218,25 @@ watchDebounced(
   flex-direction: column;
   justify-content: space-between;
   padding: 20px;
+}
+
+.no-results {
+  text-align: center;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+  margin-top: 2rem;
+
+  p {
+    font-size: 1.2rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+  }
+}
+
+.center-items {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 </style>
