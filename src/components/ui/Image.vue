@@ -8,7 +8,9 @@
         class="photo-image"
         loading="lazy"
       />
-      <div v-else class="photo-placeholder">Loading...</div>
+      <div v-else class="photo-placeholder">
+        <div class="skeleton"></div>
+      </div>
       <div v-if="!isLoading" class="overlay"></div>
     </div>
   </div>
@@ -39,19 +41,16 @@ const { isLoading } = useImage({ src: props.photo?.urls?.regular })
   width: 100%;
   height: auto;
   position: relative;
-  // aspect-ratio: 5 / 6;
 
   .photo-overlay {
     position: relative;
     width: 100%;
-    // aspect-ratio: 5 / 6;
     overflow: hidden;
     border-radius: 10px;
 
     .photo-image {
       width: 100%;
       height: 100%;
-      // aspect-ratio: 5 / 6;
       object-fit: cover;
       z-index: 1;
     }
@@ -62,9 +61,32 @@ const { isLoading } = useImage({ src: props.photo?.urls?.regular })
       display: flex;
       justify-content: center;
       align-items: center;
-      color: #000;
-      font-size: 18px;
+      background-color: #f3f3f3;
+      border-radius: 10px;
       z-index: 2;
+
+      .skeleton {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.2) 25%,
+          rgba(255, 255, 255, 0.5) 50%,
+          rgba(255, 255, 255, 0.2) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 10px;
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+      100% {
+        background-position: 200% 0;
+      }
     }
 
     .overlay {
