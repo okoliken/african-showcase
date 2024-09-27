@@ -104,7 +104,8 @@ watchDebounced(
 <style lang="scss">
 .hero-banner {
   background-color: #dde2e7;
-  height: 280px;
+  min-height: 280px; // Changed from fixed height to min-height
+  padding: 40px 20px; // Added padding for better spacing on smaller screens
 
   .search-container {
     display: flex;
@@ -112,11 +113,15 @@ watchDebounced(
     justify-content: center;
     flex-direction: column;
     height: 100%;
+    max-width: 1200px; // Added max-width for larger screens
+    margin: 0 auto; // Center the content
 
     h1 {
       color: #2d374e;
       font-size: 42px;
       font-weight: 500;
+      text-align: center; // Ensure text is centered on all screen sizes
+      margin-bottom: 20px; // Add some space below the heading
     }
 
     span {
@@ -128,6 +133,7 @@ watchDebounced(
       font-size: 12px;
       text-transform: capitalize;
       cursor: pointer;
+      margin-top: 10px; // Add some space above the clear button
       &:hover {
         text-decoration: underline;
       }
@@ -135,6 +141,38 @@ watchDebounced(
   }
 }
 
+@media (max-width: 768px) {
+  .hero-banner {
+    min-height: 220px;
+    padding: 30px 15px;
+
+    .search-container {
+      h1 {
+        font-size: 32px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-banner {
+    min-height: 180px;
+
+    .search-container {
+      h1 {
+        font-size: 24px;
+      }
+
+      span {
+        font-size: 14px;
+      }
+
+      .clear {
+        font-size: 10px;
+      }
+    }
+  }
+}
 .centered-container {
   display: flex;
   justify-content: center;

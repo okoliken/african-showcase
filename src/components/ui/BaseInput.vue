@@ -98,4 +98,10 @@ const model = defineModel({ default: '' })
     }
   }
 }
+
+@media (min-width: 500px) {
+  .search-container {
+    transform: translateY(25px);
+  }
+}
 </style>
